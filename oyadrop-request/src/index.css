@@ -1,0 +1,217 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+
+    --radius: 1rem;
+
+    /* OyaDrop branded colors */
+    --oyadrop: 160 84% 39%;
+    --oyadrop-light: 160 84% 95%;
+    --oyadrop-dark: 160 84% 32%;
+    --oyadrop-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    /* OyaDrop branded colors */
+    --oyadrop: 160 84% 39%;
+    --oyadrop-light: 160 84% 48%;
+    --oyadrop-dark: 160 84% 28%;
+    --oyadrop-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+    border: 2px solid transparent;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+
+  /* Glass effect utilities */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass;
+  }
+
+  .glass-dark {
+    @apply bg-black/50 backdrop-blur-md border border-white/10 shadow-glass;
+  }
+
+  /* Input styles */
+  input, textarea, select {
+    @apply transition-all duration-200;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    @apply ring-1 ring-oyadrop outline-none;
+  }
+
+  /* Button hover effects */
+  button {
+    @apply transition-all duration-200;
+  }
+}
+
+/* Form layout with animation delays for staggered entrance */
+.form-section {
+  @apply opacity-0 animate-fade-in-up;
+  animation-fill-mode: forwards;
+}
+
+.form-section:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.form-section:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.form-section:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.form-section:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.form-section:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Address input with icon */
+.address-input {
+  @apply relative;
+}
+
+.address-input svg {
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground;
+}
+
+.address-input input {
+  @apply pl-10;
+}
+
+/* Phone input styles */
+.phone-input {
+  @apply flex items-center border rounded-md overflow-hidden;
+}
+
+.phone-input-prefix {
+  @apply bg-muted px-3 py-2 text-muted-foreground text-sm font-medium border-r;
+}
+
+.phone-input-field {
+  @apply flex-1 px-3 py-2 focus:outline-none;
+}
+
+/* Date picker custom styles */
+.date-picker-trigger {
+  @apply w-full flex items-center justify-between px-3 py-2 border rounded-md text-left;
+}
+
+/* File upload zone */
+.upload-zone {
+  @apply border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all;
+}
+
+.upload-zone:hover {
+  @apply border-oyadrop bg-oyadrop/5;
+}
+
+/* Payment options */
+.payment-option {
+  @apply relative border rounded-lg p-4 cursor-pointer transition-all;
+}
+
+.payment-option.selected {
+  @apply border-oyadrop ring-1 ring-oyadrop bg-oyadrop/5;
+}
+
+/* Loading state */
+.loading-overlay {
+  @apply fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50;
+}
+
+.loading-spinner {
+  @apply w-12 h-12 border-4 rounded-full border-oyadrop/20 border-t-oyadrop animate-spin;
+}
