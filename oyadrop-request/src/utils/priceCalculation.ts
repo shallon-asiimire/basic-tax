@@ -1,4 +1,3 @@
-
 interface Coordinates {
   pickup: [number, number] | null;
   dropoff: [number, number] | null;
@@ -53,17 +52,17 @@ export function estimatePrice(coordinates: Coordinates): number | null {
 
   // Base fare in Nigerian Naira
   const baseFare = 1000;
-  
+
   // Rate per km (adjust as needed)
   const ratePerKm = 200;
-  
+
   // Calculate price
   let estimatedPrice = baseFare + distance * ratePerKm;
-  
+
   // Add a small random factor for realistic variation (±5%)
-  const variation = (Math.random() * 0.1) - 0.05;
+  const variation = Math.random() * 0.1 - 0.05;
   estimatedPrice = estimatedPrice * (1 + variation);
-  
+
   // Round to nearest 100 Naira
   return Math.round(estimatedPrice / 100) * 100;
 }
@@ -73,10 +72,10 @@ export function estimatePrice(coordinates: Coordinates): number | null {
  */
 export function formatPrice(price: number | null): string {
   if (price === null) return "N/A";
-  
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
+
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);

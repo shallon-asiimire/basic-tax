@@ -1,79 +1,111 @@
 import { toast } from "sonner";
 
-// Paystack public key should be the test key in development
-const PAYSTACK_PUBLIC_KEY = "pk_test_5ef0fbd0bc8ae14e952c7abf7a5725c49e481f2b"; // Use this for frontend
+// Declare Paystack types for TypeScript
+declare global {
+  interface Window {
+    PaystackPop: new () => {
+      newTransaction: (config: PaystackConfig) => Promise<void>;
+    };
+  }
+}
+
+interface PaystackConfig {
+  key: string;
+  email: string;
+  amount: number;
+  currency: string;
+  reference: string;
+  metadata: Record<string, any>;
+  onSuccess: (transaction: PaystackTransaction) => void;
+  onLoad: () => void;
+  onCancel: () => void;
+  onError: (error: Error) => void;
+}
+
+interface PaystackTransaction {
+  reference: string;
+  status: string;
+  trans: string;
+  transaction: string;
+  message: string;
+  trxref: string;
+}
 
 interface PaystackPaymentProps {
   amount: number;
   email: string;
   reference: string;
   metadata: Record<string, any>;
-  onSuccess: () => void;
+  onSuccess: (transaction: PaystackTransaction) => void;
   onCancel: () => void;
 }
 
+const PAYSTACK_PUBLIC_KEY = "pk_test_10e221b1e1fdfa7c5574781b3af64fa237411379";
+
 /**
- * Initialize Paystack payment
+ * Initialize Paystack payment using V2 API
  */
-export function initializePaystackPayment({
+export async function initializePaystackPayment({
   amount,
   email,
   reference,
   metadata,
   onSuccess,
-  onCancel
-}: PaystackPaymentProps): void {
-  // Load Paystack inline script if it's not already loaded
-  const loadPaystackScript = () => {
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.async = true;
-    script.onload = () => {
-      initializePayment();
-    };
-    script.onerror = () => {
-      toast.error("Failed to load payment gateway. Please try again.");
-      onCancel();
-    };
-    document.body.appendChild(script);
-  };
-
-  // Initialize payment once script is loaded
-  const initializePayment = () => {
-    // Check if PaystackPop is defined
-    if ((window as any).PaystackPop) {
-      const handler = (window as any).PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: email,
-        amount: amount * 100, // Paystack expects amount in kobo (100 kobo = 1 Naira)
-        currency: 'NGN',
-        ref: reference,
-        metadata: metadata,
-        callback: (response: any) => {
-          console.log("Payment successful. Reference:", response.reference);
-          toast.success("Payment successful!");
-          onSuccess();
-        },
-        onClose: () => {
-          console.log("Payment window closed");
-          toast.info("Payment cancelled.");
-          onCancel();
-        },
-      });
-      
-      handler.openIframe();
-    } else {
-      toast.error("Payment gateway not available. Please try again later.");
-      onCancel();
+  onCancel,
+}: PaystackPaymentProps): Promise<void> {
+  try {
+    // Load Paystack V2 script if not already loaded
+    if (!window.PaystackPop) {
+      await loadPaystackScript();
     }
-  };
 
-  // Check if Paystack script is already loaded
-  if ((window as any).PaystackPop) {
-    initializePayment();
-  } else {
-    loadPaystackScript();
+    const popup = new window.PaystackPop();
+
+    await popup.newTransaction({
+      key: PAYSTACK_PUBLIC_KEY,
+      email,
+      amount: amount * 100, // Convert to kobo
+      currency: "NGN",
+      reference,
+      metadata,
+      onSuccess: (transaction: PaystackTransaction) => {
+        console.log("Payment successful. Reference:", transaction.reference);
+        toast.success("Payment successful!");
+        onSuccess(transaction);
+      },
+      onLoad: () => {
+        console.log("Payment modal loaded successfully");
+      },
+      onCancel: () => {
+        console.log("Payment cancelled by user");
+        toast.info("Payment cancelled.");
+        onCancel();
+      },
+      onError: (error: Error) => {
+        console.error("Payment error:", error);
+        toast.error("Payment failed. Please try again.");
+        onCancel();
+      },
+    });
+  } catch (error) {
+    console.error("Paystack initialization error:", error);
+    toast.error("Failed to initialize payment. Please try again.");
+    onCancel();
   }
+}
+
+/**
+ * Load Paystack V2 script
+ */
+function loadPaystackScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://js.paystack.co/v2/inline.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load Paystack script"));
+    document.body.appendChild(script);
+  });
 }
 
 /**
@@ -81,6 +113,8 @@ export function initializePaystackPayment({
  */
 export function generatePaymentReference(): string {
   const timestamp = new Date().getTime().toString();
-  const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+  const random = Math.floor(Math.random() * 1000000)
+    .toString()
+    .padStart(6, "0");
   return `OYADROP-${timestamp}-${random}`;
 }
